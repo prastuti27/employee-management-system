@@ -1,38 +1,98 @@
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+
+  height: 100vh;
+}
+.Sidemenu {
+  height: 100vh;
+  width: 300px;
+  color: white;
+  background-color: black;
+  background-image: url(./images/love.png);
+  opacity: 80%;
+}
+.SideMenuAndPageContent {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.Sidebar {
+  height: 100vh;
+  color: white;
+
+  background-color: black;
+}
+.AppHeader {
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 4px 20px 4px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: white;
+  color: rgb(10, 10, 10);
+  box-shadow: 0 3px 2px -2px rgb(211, 209, 209);
+}
+.logo {
+  width: 300px;
+  display: flex;
+  margin-left: 30px;
+
+  background-color: white;
+}
+
+img {
+  height: 20px;
+}
+.ant-menu-item {
+  font-size: 20px;
+  margin-top: 15px;
+}
+.ant-menu {
+  background-color: black;
+  opacity: 0.8;
+  width: 300px;
+  padding-left: 15px;
+}
+li {
+  margin-bottom: 20px;
+  border-bottom: 0.1pt solid rgb(99, 97, 95);
+}
+.ant-menu-title-content {
+  padding-left: 35px;
   color: white;
 }
-
-.App-link {
-  color: #61dafb;
+.ant-menu-item-icon {
+  color: white !important;
+  font-size: 22px !important;
+}
+.ant-card-body {
+  width: 300px;
+}
+.ant-space-item {
+  font-size: 22px;
+}
+.container {
+  width: 1800px !important; /* This element will take all available vertical space */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.dash-card {
+  margin: 10px;
+}
+
+.ant-statistic-content {
+  color: white !important;
+  font-weight: bold;
+}
+.form-group {
+  margin-top: 30px;
+}
+.test {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-backdrop {
+  background-color: #00000015 !important;
 }

@@ -1,9 +1,17 @@
 export default function Validation(values) {
+  console.log("values", values);
   const errors = {};
   const email_pattern =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    // /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   const phone_pattern = /^[0-9]{10}$/;
   const birthDate = new Date(values.birthDate);
+  const today = new Date(); // Get today's date
+  const minBirthDate = new Date(
+    today.getFullYear() - 16,
+    today.getMonth(),
+    today.getDate()
+  );
 
   const birthYear = birthDate.getFullYear().toString();
 
@@ -24,10 +32,10 @@ export default function Validation(values) {
     errors.birthDate = "BirthDate is Required!";
   } else if (isNaN(birthDate.getTime())) {
     errors.birthDate = "Invalid Birth Date!";
-  } else {
-    if (birthYear.length > 4) {
-      errors.birthDate = "Birth Year should have no more than 4 digits!";
-    }
+  } else if (birthYear.length > 4) {
+    errors.birthDate = "Birth Year should have no more than 4 digits!";
+  } else if (birthDate > minBirthDate) {
+    errors.birthDate = "Must be at least 16 years old!";
   }
 
   if (values.address === "") {

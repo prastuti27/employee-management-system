@@ -4,13 +4,15 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../redux/UserReducer";
 import { useNavigate } from "react-router-dom";
+import EmployeeForm from "./EmployeeForm";
 
 const Update = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const users = useSelector((state) => state.users);
-  const existingUser = users.find((user) => parseInt(user.id) === parseInt(id));
-  console.log("Existing user::", existingUser);
+  const existingUser = users.find((user) => user.id === Number(id));
+  console.log("USERS:::", users);
+  console.log("Existing user::", existingUser, "id", id);
   const [values, setValues] = useState(existingUser);
   const dispatch = useDispatch();
 
@@ -44,7 +46,8 @@ const Update = () => {
   // Rest of your component logic for handling updates
   return (
     <div className=" container mt-4">
-      <form onSubmit={handleUpdate}>
+      <EmployeeForm initialValues={existingUser} editMode={true} />
+      {/* <form onSubmit={handleUpdate}>
         <div className="row mb-5">
           <div className="col-md-3 text-center">
             <h1>Edit Employee</h1>
@@ -57,7 +60,19 @@ const Update = () => {
                 marginLeft: "70px",
               }}
             >
-              <FaUserCircle size={80} style={{ margin: "35px" }} />
+              {values.selectedFile ? (
+                <img
+                  src={values.selectedFile}
+                  alt="Uploaded"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    borderRadius: "50%",
+                  }}
+                />
+              ) : (
+                <FaUserCircle size={80} style={{ margin: "35px" }} />
+              )}
             </div>
           </div>
           <div className="col-md-2 mt-5">
@@ -256,7 +271,7 @@ const Update = () => {
         <button type="submit" className="btn btn-success mt-3 p-2 ">
           Save & Update
         </button>
-      </form>
+      </form> */}
     </div>
   );
 };

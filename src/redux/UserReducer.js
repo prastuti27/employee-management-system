@@ -6,6 +6,8 @@ const userSlice = createSlice({
   initialState: userList,
   reducers: {
     addUser: (state, action) => {
+      console.log("actionnn=>", action);
+      return [...state, action.payload];
       state.push(action.payload);
     },
     deleteUser: (state, action) => {
@@ -28,6 +30,7 @@ const userSlice = createSlice({
         birthDate,
         jobPosition,
         team,
+        selectedFile,
         gender,
       } = action.payload;
 
@@ -46,6 +49,7 @@ const userSlice = createSlice({
           birthDate,
           jobPosition,
           team,
+          selectedFile,
           gender,
         });
       }

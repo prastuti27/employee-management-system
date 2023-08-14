@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { deleteUser } from "../redux/UserReducer";
 import { FaUserCircle } from "react-icons/fa";
+import { Offcanvas } from "react-bootstrap";
 
 function Employee() {
   const navigate = useNavigate();
@@ -17,19 +18,17 @@ function Employee() {
   const users = useSelector((state) => state.users);
   const [show, setShow] = useState(false);
   const [currentUserId, setCurrentUserId] = useState();
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [currentViewUserDetail, setCurrentViewUserDetail] = useState();
 
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [viewedUser, setViewedUser] = useState(null); // Store the selected user
 
-  const handleCloseViewModal = () => {
-    setShowViewModal(false);
-    setViewedUser(null); // Reset the viewed user when the modal is closed
+  const openOffcanvas = (user) => {
+    setShowOffcanvas(true);
+    setViewedUser(user);
   };
 
-  const handleShowViewModal = (user) => {
-    setShowViewModal(true);
-    setViewedUser(user); // Store the selected user when "View" button is clicked
+  const closeOffcanvas = () => {
+    setShowOffcanvas(false);
   };
 
   const handleClose = () => setShow(false);
@@ -87,7 +86,8 @@ function Employee() {
                   variant="info"
                   size="sm"
                   className="mr-2"
-                  onClick={() => handleShowViewModal(user)}
+                  // onClick={() => handleShowViewModal(user)}
+                  onClick={() => openOffcanvas(user)}
                 >
                   <FaEye />
                 </Button>
@@ -137,29 +137,73 @@ function Employee() {
           </Modal.Footer>
         </Modal>
 
-        <Modal
-          show={showViewModal}
-          onHide={handleCloseViewModal}
-          className=" modal d-flex align-items-center justify-content-center"
+        <Offcanvas
+          show={showOffcanvas}
+          onHide={closeOffcanvas}
+          placement="end"
+          aria-labelledby="offcanvasRightLabel"
         >
-          <Modal.Header closeButton>
-            <Modal.Title>View Employee</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title id="offcanvasRightLabel">
+              <h2>Employee Details</h2>
+            </Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            {/* {viewedUser.selectedFile ? (
+              <img
+                src={viewedUser.selectedFile}
+                alt="Uploaded"
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: "50%",
+                }}
+              />
+            ) : (
+              <FaUserCircle size={80} style={{ margin: "35px" }} />
+            )} */}
+
             {viewedUser && (
               <div>
-                <p>Email: {viewedUser.email}</p>
-                <p>Phone: {viewedUser.phoneNo}</p>
-                Display other details as needed
+                <div>
+                  {viewedUser.selectedFile ? (
+                    <img
+                      src={viewedUser.selectedFile}
+                      alt="Uploaded"
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  ) : (
+                    <FaUserCircle size={80} style={{ margin: "35px" }} />
+                  )}
+                </div>
+                <strong>
+                  <h3>
+                    {viewedUser.firstname} {viewedUser.lastName}
+                  </h3>
+                </strong>
+                <p> {viewedUser.email}</p>
+                <p> Contact No.: {viewedUser.phoneNo}</p>
+                <p> {viewedUser.team}</p>
+                <p> Address : {viewedUser.address}</p>
+                <p> Designation : {viewedUser.jobPosition}</p>
+                {/* Display other details as needed */}
+                <Button
+                  variant="warning"
+                  size="sm"
+                  className="mr-2"
+                  onClick={() => navigate(`/edit/${viewedUser.id}`)}
+                  id="navigate"
+                >
+                  Edit details
+                </Button>
               </div>
             )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseViewModal}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
+          </Offcanvas.Body>
+        </Offcanvas>
       </table>
     </div>
   );

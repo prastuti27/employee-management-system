@@ -1,11 +1,11 @@
-/*import { FaUserCircle, FaUpload } from "react-icons/fa";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { FaUserCircle, FaUpload } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser } from "../redux/UserReducer";
+import { addUser, updateUser } from "../redux/UserReducer";
 import { useNavigate } from "react-router-dom";
 import Validation from "./Validation";
 
-function Employee() {
+const EmployeeForm = ({ editMode, initialValues }) => {
   const [values, setValues] = useState({
     firstname: "",
     lastName: "",
@@ -16,53 +16,55 @@ function Employee() {
     jobPosition: "",
     team: "",
     gender: "",
+    ...initialValues,
   });
 
-  const [errors, setErrors] = useState(true);
-  function handleInput(event) {
-    const newObj = { ...values, [event.target.name]: event.target.value };
-    setValues(newObj);
-  }
-
+  const [errors, setErrors] = useState({});
   const users = useSelector((state) => state.users);
-
   const [dpImage, setDPImage] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  function handleValidation(event) {
-    event.preventDefault();
-    console.log("validation", values);
-    const validationErrors = Validation(values);
+  useEffect(() => {
+    //  console.log("editeee", editMode, initialValues, values);
+    if (editMode) {
+      console.log("user", initialValues);
+      setValues(initialValues);
+      setDPImage(initialValues.selectedFile);
+    }
+  }, [editMode, initialValues]);
 
+  const handleInput = (event) => {
+    const { name, value } = event.target;
+    setValues((prevValues) => ({ ...prevValues, [name]: value }));
+  };
+
+  const handleValidation = (event) => {
+    event.preventDefault();
+    const validationErrors = Validation(values);
     setErrors(validationErrors);
-    // console.log("selecteddddd", selectedFile);
+    console.log("Validating FORM");
     if (Object.keys(validationErrors).length === 0) {
       const id = users.length + 1;
-      // Decode the Base64 string and show result just to make sure that everything is OK
-      dispatch(addUser({ id, ...values, selectedFile: dpImage }));
+      const action = editMode ? updateUser : addUser;
+      dispatch(action({ id, ...values, selectedFile: dpImage }));
 
       navigate("/employee");
     }
-  }
+  };
 
-  function handleValidationOnBlur(name, value) {
-    console.log("value", name, value);
+  const handleValidationOnBlur = (name, value) => {
     const validationErrors = Validation({ ...values, [name]: value });
-
     setErrors({ ...errors, [name]: validationErrors[name] });
-  }
+  };
 
   const handleUploadFileChange = async (e) => {
     const file = e.target.files[0];
-    console.log("FILEEE IMAGE", file);
-
     const image = await convertBase64(file);
     setDPImage(image);
-    console.log("dp image:::::", image);
   };
 
-  function convertBase64(file) {
+  const convertBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
@@ -75,15 +77,14 @@ function Employee() {
         reject(error);
       };
     });
-  }
-
+  };
   function handleValidationEmail(event) {}
+
   return (
     <div className=" container mt-4">
       <form onSubmit={handleValidation}>
         <div className="row mb-5">
           <div className="col-md-3 text-center">
-            <h1>Add Employee</h1>
             <div
               style={{
                 width: "150px",
@@ -135,7 +136,9 @@ function Employee() {
           </div>
           <div className="col-md-3">
             <div className="form-group">
-              <label htmlFor="firstname">First Name</label>
+              <label htmlFor="firstname">
+                First Name <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 onBlur={(event) =>
                   handleValidationOnBlur(event.target.name, event.target.value)
@@ -145,6 +148,7 @@ function Employee() {
                 id="firstname"
                 name="firstname"
                 placeholder="Enter First Name"
+                value={values.firstname}
                 // onChange={(e) => setFirstName(e.target.value)}
                 onChange={handleInput}
               />
@@ -153,12 +157,15 @@ function Employee() {
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="birthDate">Birth Date</label>
+              <label htmlFor="birthDate">
+                Birth Date <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 type="date"
                 className="form-control"
                 id="birthDate"
                 name="birthDate"
+                value={values.birthDate}
                 onBlur={(event) =>
                   handleValidationOnBlur(event.target.name, event.target.value)
                 }
@@ -169,12 +176,15 @@ function Employee() {
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="email">Email Address</label>
+              <label htmlFor="email">
+                Email Address <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 type="email"
                 className="form-control"
                 id="email"
                 name="email"
+                value={values.email}
                 placeholder="Enter Email Address"
                 onBlur={(event) =>
                   handleValidationOnBlur(event.target.name, event.target.value)
@@ -201,7 +211,9 @@ function Employee() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="gender">Gender</label>
+              <label htmlFor="gender">
+                Gender <span style={{ color: "red" }}>*</span>
+              </label>
               <select
                 onBlur={(event) =>
                   handleValidationOnBlur(event.target.name, event.target.value)
@@ -210,6 +222,7 @@ function Employee() {
                 id="gender"
                 name="gender"
                 onChange={handleInput}
+                value={values.gender}
               >
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
@@ -219,7 +232,9 @@ function Employee() {
               {errors.gender && <p style={{ color: "red" }}>{errors.gender}</p>}
             </div>
             <div className="form-group">
-              <label htmlFor="address">Address</label>
+              <label htmlFor="address">
+                Address <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 type="text"
                 onBlur={(event) =>
@@ -230,6 +245,7 @@ function Employee() {
                 name="address"
                 placeholder="Enter Address"
                 onChange={handleInput}
+                value={values.address}
               />
               {errors.address && (
                 <p style={{ color: "red" }}>{errors.address}</p>
@@ -238,7 +254,9 @@ function Employee() {
           </div>
           <div className="col-md-3">
             <div className="form-group">
-              <label htmlFor="lastName">Last Name</label>
+              <label htmlFor="lastName">
+                Last Name <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 type="text"
                 onBlur={(event) =>
@@ -249,6 +267,7 @@ function Employee() {
                 name="lastName"
                 placeholder="Enter Last Name"
                 onChange={handleInput}
+                value={values.lastName}
               />
               {errors.lastName && (
                 <p style={{ color: "red" }}>{errors.lastName}</p>
@@ -256,7 +275,9 @@ function Employee() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phoneNo">Phone Number</label>
+              <label htmlFor="phoneNo">
+                Phone Number <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 type="tel"
                 onBlur={(event) =>
@@ -267,6 +288,7 @@ function Employee() {
                 name="phoneNo"
                 placeholder="Enter Phone Number"
                 onChange={handleInput}
+                value={values.phoneNo}
               />
               {errors.phoneNo && (
                 <p style={{ color: "red" }}>{errors.phoneNo}</p>
@@ -309,7 +331,9 @@ function Employee() {
             </div>
             <div className="col-md-3">
               <div className="form-group">
-                <label htmlFor="jobPosition">Job Position</label>
+                <label htmlFor="jobPosition">
+                  Job Position <span style={{ color: "red" }}>*</span>
+                </label>
                 <input
                   onBlur={(event) =>
                     handleValidationOnBlur(
@@ -323,6 +347,7 @@ function Employee() {
                   name="jobPosition"
                   placeholder="Enter Job Position"
                   onChange={handleInput}
+                  value={values.jobPosition}
                 />
                 {errors.jobPosition && (
                   <p style={{ color: "red" }}>{errors.jobPosition}</p>
@@ -331,7 +356,9 @@ function Employee() {
             </div>
             <div className="col-md-3">
               <div className="form-group">
-                <label htmlFor="team">Team</label>
+                <label htmlFor="team">
+                  Team <span style={{ color: "red" }}>*</span>
+                </label>
                 <input
                   onBlur={(event) =>
                     handleValidationOnBlur(
@@ -346,33 +373,22 @@ function Employee() {
                   placeholder="Choose Team"
                   // onChange={(e) => setTeam(e.target.value)}
                   onChange={handleInput}
+                  value={values.team}
                 />
                 {errors.team && <p style={{ color: "red" }}>{errors.team}</p>}
               </div>
             </div>
           </div>
+          <small>
+            <span style={{ color: "red" }}>*</span>denotes a required field
+          </small>
         </div>
-
-        <button type="submit" className="btn btn-success mt-3 p-2 ">
-          Submit
+        <button type="submit" className="btn btn-success mt-3 p-2">
+          {editMode ? "Update" : "Submit"}
         </button>
       </form>
     </div>
   );
-}
-
-export default Employee;
-*/
-import React from "react";
-import EmployeeForm from "./EmployeeForm";
-
-const AddEmployee = () => {
-  return (
-    <div>
-      <h1>Add Employee</h1>
-      <EmployeeForm editMode={false} />
-    </div>
-  );
 };
 
-export default AddEmployee;
+export default EmployeeForm;

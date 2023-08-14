@@ -96,3 +96,6 @@ li {
 .modal-backdrop {
   background-color: #00000015 !important;
 }
+.offcanvas-backdrop.show {
+  opacity: 0.05 !important;
+}

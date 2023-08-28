@@ -24,6 +24,8 @@ const EmployeeForm = ({ editMode, initialValues }) => {
   const [dpImage, setDPImage] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [successAlert, setSuccessAlert] = useState(false);
+  const [failureAlert, setFailureAlert] = useState(false);
 
   useEffect(() => {
     //  console.log("editeee", editMode, initialValues, values);
@@ -41,20 +43,30 @@ const EmployeeForm = ({ editMode, initialValues }) => {
 
   const handleValidation = (event) => {
     event.preventDefault();
-    const validationErrors = Validation(values);
+    const validationErrors = Validation(values, "user");
+    console.log("return error", validationErrors);
     setErrors(validationErrors);
-    console.log("Validating FORM");
+    console.log("Validating FORM", validationErrors, event, editMode);
     if (Object.keys(validationErrors).length === 0) {
       const id = users.length + 1;
       const action = editMode ? updateUser : addUser;
       dispatch(action({ id, ...values, selectedFile: dpImage }));
 
-      navigate("/employee");
+      setSuccessAlert(true);
+      setTimeout(() => {
+        setSuccessAlert(false);
+        navigate("/employee");
+      }, 1000);
+    } else {
+      setFailureAlert(true);
+      setTimeout(() => {
+        setFailureAlert(false);
+      }, 1000);
     }
   };
 
   const handleValidationOnBlur = (name, value) => {
-    const validationErrors = Validation({ ...values, [name]: value });
+    const validationErrors = Validation({ ...values, [name]: value }, "user");
     setErrors({ ...errors, [name]: validationErrors[name] });
   };
 
@@ -85,15 +97,7 @@ const EmployeeForm = ({ editMode, initialValues }) => {
       <form onSubmit={handleValidation}>
         <div className="row mb-5">
           <div className="col-md-3 text-center">
-            <div
-              style={{
-                width: "150px",
-                height: "150px",
-                borderRadius: "50%",
-                background: "#f1f1f1",
-                marginLeft: "70px",
-              }}
-            >
+            <div>
               {dpImage ? (
                 <img
                   src={dpImage}
@@ -105,7 +109,7 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                   }}
                 />
               ) : (
-                <FaUserCircle size={80} style={{ margin: "35px" }} />
+                <FaUserCircle size={120} style={{ margin: "35px" }} />
               )}
             </div>
           </div>
@@ -153,10 +157,14 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 onChange={handleInput}
               />
               {errors.firstname && (
-                <p style={{ color: "red" }}>{errors.firstname}</p>
+                <small>
+                  <span style={{ color: "red", fontSize: "0.9em" }}>
+                    {errors.firstname}
+                  </span>
+                </small>
               )}
             </div>
-            <div className="form-group">
+            <div className="form-group mt-4">
               <label htmlFor="birthDate">
                 Birth Date <span style={{ color: "red" }}>*</span>
               </label>
@@ -172,10 +180,14 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 onChange={handleInput}
               />
               {errors.birthDate && (
-                <p style={{ color: "red" }}>{errors.birthDate}</p>
+                <small>
+                  <span style={{ color: "red", fontSize: "0.9em" }}>
+                    {errors.birthDate}
+                  </span>
+                </small>
               )}
             </div>
-            <div className="form-group">
+            <div className="form-group mt-4">
               <label htmlFor="email">
                 Email Address <span style={{ color: "red" }}>*</span>
               </label>
@@ -195,11 +207,17 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 }}
                 onChange={handleInput}
               />
-              {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
+              {errors.email && (
+                <small>
+                  <span style={{ color: "red", fontSize: "0.9em" }}>
+                    {errors.email}
+                  </span>
+                </small>
+              )}
             </div>
           </div>
 
-          <div className="col-md-3">
+          <div className="col-md-3 ">
             <div className="form-group">
               <label htmlFor="MiddleName">Middle Name</label>
               <input
@@ -210,7 +228,7 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 placeholder="Enter Middle Name"
               />
             </div>
-            <div className="form-group">
+            <div className="form-group mt-4">
               <label htmlFor="gender">
                 Gender <span style={{ color: "red" }}>*</span>
               </label>
@@ -229,10 +247,16 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
-              {errors.gender && <p style={{ color: "red" }}>{errors.gender}</p>}
+              {errors.gender && (
+                <small>
+                  <span style={{ color: "red", fontSize: "0.9em" }}>
+                    {errors.gender}
+                  </span>
+                </small>
+              )}
             </div>
-            <div className="form-group">
-              <label htmlFor="address">
+            <div className="form-group mt-4">
+              <label htmlFor="address ">
                 Address <span style={{ color: "red" }}>*</span>
               </label>
               <input
@@ -248,7 +272,11 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 value={values.address}
               />
               {errors.address && (
-                <p style={{ color: "red" }}>{errors.address}</p>
+                <small>
+                  <span style={{ color: "red", fontSize: "0.9em" }}>
+                    {errors.address}
+                  </span>
+                </small>
               )}
             </div>
           </div>
@@ -270,11 +298,15 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 value={values.lastName}
               />
               {errors.lastName && (
-                <p style={{ color: "red" }}>{errors.lastName}</p>
+                <small>
+                  <span style={{ color: "red", fontSize: "0.9em" }}>
+                    {errors.lastName}
+                  </span>
+                </small>
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group mt-4">
               <label htmlFor="phoneNo">
                 Phone Number <span style={{ color: "red" }}>*</span>
               </label>
@@ -291,13 +323,17 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                 value={values.phoneNo}
               />
               {errors.phoneNo && (
-                <p style={{ color: "red" }}>{errors.phoneNo}</p>
+                <small>
+                  <span style={{ color: "red", fontSize: "0.9em" }}>
+                    {errors.phoneNo}
+                  </span>
+                </small>
               )}
             </div>
           </div>
         </div>
 
-        <div className="form-group">
+        <div className="form-group mt-4">
           <div className="row justify-content-start">
             <div className="col-md-3">
               {" "}
@@ -324,7 +360,7 @@ const EmployeeForm = ({ editMode, initialValues }) => {
             </div>
           </div>
         </div>
-        <div className="form-group">
+        <div className="form-group mt-4">
           <div className="row justify-content-start">
             <div className="col-md-3">
               <h3 className=" text-center">Jobs</h3>
@@ -350,11 +386,15 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                   value={values.jobPosition}
                 />
                 {errors.jobPosition && (
-                  <p style={{ color: "red" }}>{errors.jobPosition}</p>
+                  <small>
+                    <span style={{ color: "red", fontSize: "0.9em" }}>
+                      {errors.jobPosition}
+                    </span>
+                  </small>
                 )}
               </div>
             </div>
-            <div className="col-md-3">
+            <div className="col-md-3 ">
               <div className="form-group">
                 <label htmlFor="team">
                   Team <span style={{ color: "red" }}>*</span>
@@ -375,17 +415,35 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                   onChange={handleInput}
                   value={values.team}
                 />
-                {errors.team && <p style={{ color: "red" }}>{errors.team}</p>}
+                {errors.team && (
+                  <small>
+                    <span style={{ color: "red", fontSize: "0.9em" }}>
+                      {errors.team}
+                    </span>
+                  </small>
+                )}
               </div>
             </div>
           </div>
-          <small>
-            <span style={{ color: "red" }}>*</span>denotes a required field
-          </small>
+          <div>
+            <small>
+              <span style={{ color: "red" }}>*</span>denotes a required field
+            </small>
+          </div>
+          <button type="submit" className="btn btn-success mt-3 p-2">
+            {editMode ? "Update" : "Submit"}
+          </button>
+          {successAlert && (
+            <div className="alert alert-success mt-3" role="alert">
+              Team added successfully!
+            </div>
+          )}
+          {failureAlert && (
+            <div className="alert alert-danger mt-3" role="alert">
+              Failed to add team. Please check the form fields.
+            </div>
+          )}
         </div>
-        <button type="submit" className="btn btn-success mt-3 p-2">
-          {editMode ? "Update" : "Submit"}
-        </button>
       </form>
     </div>
   );

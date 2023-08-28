@@ -368,10 +368,12 @@ import EmployeeForm from "./EmployeeForm";
 
 const AddEmployee = () => {
   return (
-    <div>
+    <>
       <h1>Add Employee</h1>
-      <EmployeeForm editMode={false} />
-    </div>
+      <div>
+        <EmployeeForm editMode={false} />
+      </div>
+    </>
   );
 };
 

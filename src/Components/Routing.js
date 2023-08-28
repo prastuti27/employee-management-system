@@ -5,6 +5,8 @@ import Teams from "../Pages/Teams";
 import Project from "../Pages/Project";
 import AddEmployee from "../Components/AddEmployee";
 import Update from "./Update";
+import AddTeam from "./AddTeam";
+import EditTeam from "./EditTeam";
 
 function Routing() {
   return (
@@ -15,6 +17,8 @@ function Routing() {
       <Route path="/team" element={<Teams />}></Route>
       <Route path="/AddEmployee" element={<AddEmployee />}></Route>
       <Route path="/edit/:id" element={<Update />}></Route>
+      <Route path="/AddTeam" element={<AddTeam />}></Route>
+      <Route path="/edit-team/:id" element={<EditTeam />} />
     </Routes>
   );
 }

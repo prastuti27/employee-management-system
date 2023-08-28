@@ -35,10 +35,11 @@
   box-shadow: 0 3px 2px -2px rgb(211, 209, 209);
 }
 .logo {
-  width: 300px;
+  width: 375px;
   display: flex;
   margin-left: 30px;
-
+  justify-content: space-between;
+  align-items: center;
   background-color: white;
 }
 
@@ -85,9 +86,7 @@ li {
   color: white !important;
   font-weight: bold;
 }
-.form-group {
-  margin-top: 30px;
-}
+
 .test {
   display: flex;
   justify-content: space-between;
@@ -98,4 +97,169 @@ li {
 }
 .offcanvas-backdrop.show {
   opacity: 0.05 !important;
+}
+/* styles.css */
+.custom-button {
+  background-color: whitesmoke;
+  color: rgb(14, 13, 13);
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgb(231, 225, 225);
+  margin-right: 50px;
+}
+
+.custom-button .icon {
+  margin-right: 5px;
+}
+/* Add this to your CSS file or style module */
+.error-message {
+  font-size: 12px; /* Adjust the font size as needed */
+  color: red; /* Example color for error messages */
+  /* Add any additional styles you want */
+}
+
+/* .team-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+}
+
+.team-form h3 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+} */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.dropdown-toggle {
+  border: 1px solid #ccc;
+  background-color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 1000;
+  display: none;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.form-check {
+  margin: 5px 0;
+}
+
+.form-check-label {
+  cursor: pointer;
+}
+
+.form-check-input {
+  margin-top: 2px;
+}
+
+.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+/* .scrollMultipleOption {
+  height: "150px";
+  overflow-y: "scroll";
+} */
+.members_box {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.selected-members {
+  margin-top: 10px;
+  height: 30px;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #f7f7f7;
+}
+.team-members-cell {
+  display: inline-block;
+  max-width: 150px; /* Adjust as needed */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tooltip-inner {
+  max-width: none;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.viewteam-members {
+  font-size: 18px;
+  text-decoration: none;
+  color: #7f7b7b;
+}
+.submitbtn {
+  margin-left: 30px !important;
 }

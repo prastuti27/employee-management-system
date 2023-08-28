@@ -1,9 +1,16 @@
-export default function Validation(values) {
-  console.log("values", values);
+export default function Validation(values, formType) {
+  console.log("values::: from Form", formType, values);
+  if (formType === "team") {
+    return teamValidaion(values);
+  } else if (formType === "user") {
+    return userValidation(values);
+  }
+}
+
+function userValidation(values) {
   const errors = {};
   const email_pattern =
-    // /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    /^\w+([\.-]?\w+)*@(?:(?!gmail\.com)[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*|gmail\.com)$/;
   const phone_pattern = /^[0-9]{10}$/;
   const birthDate = new Date(values.birthDate);
   const today = new Date(); // Get today's date
@@ -18,18 +25,18 @@ export default function Validation(values) {
   console.log("valuess from types", values);
 
   if (values.firstname === "") {
-    errors.firstname = "FirstName is Required!";
+    errors.firstname = "This field is required";
   }
 
   if (values.lastName === "") {
-    errors.lastName = "LastName is Required!";
+    errors.lastName = "This field is required";
   }
   if (values.gender === "") {
-    errors.gender = "Gender is Required!";
+    errors.gender = "This field is required";
   }
 
   if (values.birthDate === "") {
-    errors.birthDate = "BirthDate is Required!";
+    errors.birthDate = "This field is required";
   } else if (isNaN(birthDate.getTime())) {
     errors.birthDate = "Invalid Birth Date!";
   } else if (birthYear.length > 4) {
@@ -39,13 +46,13 @@ export default function Validation(values) {
   }
 
   if (values.address === "") {
-    errors.address = "Address is Required!";
+    errors.address = "This field is required";
   }
   if (values.jobPosition === "") {
-    errors.jobPosition = "Job Position is Required!";
+    errors.jobPosition = "This field is required";
   }
   if (values.team === "") {
-    errors.team = "Team is Required!";
+    errors.team = "This field is required";
   }
 
   if (values.phoneNo === "") {
@@ -55,9 +62,36 @@ export default function Validation(values) {
   }
 
   if (values.email === "") {
-    errors.email = "Email is Required!";
+    errors.email = "This field is required";
   } else if (!email_pattern.test(values.email)) {
-    errors.email = "Email did'nt match";
+    errors.email = <small>Email did'nt match!</small>;
+  }
+
+  return errors;
+}
+
+function teamValidaion(values) {
+  console.log("TEAM VALIDATION", values);
+  console.log("TEAM MEMBERS:::::", values.teamMembers);
+  const errors = {};
+  if (values.teamName === "") {
+    errors.teamName = "This field is Required!";
+  }
+  if (values.teamLeader === "") {
+    errors.teamLeader = "This field is Required!";
+  }
+
+  if (values.teamMembers.length === 0) {
+    errors.teamMembers = "This field is Required!";
+  }
+  if (values.teamProject === "") {
+    errors.teamProject = "This field is Required!";
+  }
+  if (values.activityStatus === "") {
+    errors.activityStatus = "This field is Required!";
+  }
+  if (values.dateAssigned === "") {
+    errors.dateAssigned = "This field is Required!";
   }
 
   return errors;

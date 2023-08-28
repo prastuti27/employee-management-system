@@ -62,7 +62,7 @@ const Update = () => {
             >
               {values.selectedFile ? (
                 <img
-                  src={values.selectedFile}
+                  src={values.}
                   alt="Uploaded"
                   style={{
                     width: "150px",

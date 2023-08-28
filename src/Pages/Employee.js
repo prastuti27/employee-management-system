@@ -9,8 +9,8 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { deleteUser } from "../redux/UserReducer";
-import { FaUserCircle } from "react-icons/fa";
-import { Offcanvas } from "react-bootstrap";
+
+import UserDetailsOffcanvas from "../Components/UserDetailOffcanvas";
 
 function Employee() {
   const navigate = useNavigate();
@@ -46,8 +46,8 @@ function Employee() {
 
   return (
     <div className="container">
-      <div className="employee-header text-center display-3 mb-4">
-        Manage Employees
+      <div className="employee-header text-center display-6 mb-4">
+        Employees
       </div>
       <div className="text-end mb-4">
         <Button
@@ -60,27 +60,27 @@ function Employee() {
       </div>
       <table className="table table-bordered table-striped">
         <thead className="thead-dark">
-          <tr>
+          <tr className="text-center">
             <th>S.N</th>
             {/* <th>ID</th> */}
             <th>Name</th>
             <th>Email</th>
             <th>Phoneno</th>
             <th>Designation</th>
-            <th>Current Team</th>
+            {/* <th>Current Team</th> */}
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
+            <tr key={index} className="text-center">
+              <td>{index + 1} </td>
               {/* <td>{user.id}</td> */}
-              <td>{user.firstname}</td>
+              <td>{user.firstname + " " + user.lastName}</td>
               <td>{user.email}</td>
               <td>{user.phoneNo}</td>
               <td>{user.jobPosition}</td>
-              <td>{user.team}</td>
+              {/* <td>{user.team}</td> */}
               <td>
                 <Button
                   variant="info"
@@ -136,74 +136,12 @@ function Employee() {
             </Button>
           </Modal.Footer>
         </Modal>
-
-        <Offcanvas
+        <UserDetailsOffcanvas
           show={showOffcanvas}
           onHide={closeOffcanvas}
-          placement="end"
-          aria-labelledby="offcanvasRightLabel"
-        >
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title id="offcanvasRightLabel">
-              <h2>Employee Details</h2>
-            </Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            {/* {viewedUser.selectedFile ? (
-              <img
-                src={viewedUser.selectedFile}
-                alt="Uploaded"
-                style={{
-                  width: "150px",
-                  height: "150px",
-                  borderRadius: "50%",
-                }}
-              />
-            ) : (
-              <FaUserCircle size={80} style={{ margin: "35px" }} />
-            )} */}
-
-            {viewedUser && (
-              <div>
-                <div>
-                  {viewedUser.selectedFile ? (
-                    <img
-                      src={viewedUser.selectedFile}
-                      alt="Uploaded"
-                      style={{
-                        width: "150px",
-                        height: "150px",
-                        borderRadius: "50%",
-                      }}
-                    />
-                  ) : (
-                    <FaUserCircle size={80} style={{ margin: "35px" }} />
-                  )}
-                </div>
-                <strong>
-                  <h3>
-                    {viewedUser.firstname} {viewedUser.lastName}
-                  </h3>
-                </strong>
-                <p> {viewedUser.email}</p>
-                <p> Contact No.: {viewedUser.phoneNo}</p>
-                <p> {viewedUser.team}</p>
-                <p> Address : {viewedUser.address}</p>
-                <p> Designation : {viewedUser.jobPosition}</p>
-                {/* Display other details as needed */}
-                <Button
-                  variant="warning"
-                  size="sm"
-                  className="mr-2"
-                  onClick={() => navigate(`/edit/${viewedUser.id}`)}
-                  id="navigate"
-                >
-                  Edit details
-                </Button>
-              </div>
-            )}
-          </Offcanvas.Body>
-        </Offcanvas>
+          viewedUser={viewedUser}
+          navigate={navigate}
+        />
       </table>
     </div>
   );

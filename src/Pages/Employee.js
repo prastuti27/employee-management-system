@@ -6,21 +6,33 @@ import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
 import Modal from "react-bootstrap/Modal";
 import "../App.css";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { deleteUser } from "../redux/UserReducer";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "../firebase";
+import { getEmployees, deleteEmployee } from "../redux/UserReducer";
 
 import UserDetailsOffcanvas from "../Components/UserDetailOffcanvas";
 
-function Employee() {
+function Employee({ isEditMode, totalUsersInTable }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const users = useSelector((state) => state.users);
+
+  const userList = useSelector((state) => state.users);
+
+  useEffect(() => {
+    dispatch(getEmployees());
+  }, []);
+
+  // const sortedList=(userList).sort((a,b) => b.post_added.localeCompare(a.post_added))
+  const users = userList.users;
   const [show, setShow] = useState(false);
   const [currentUserId, setCurrentUserId] = useState();
 
   const [showOffcanvas, setShowOffcanvas] = useState(false);
-  const [viewedUser, setViewedUser] = useState(null); // Store the selected user
+  const [viewedUser, setViewedUser] = useState(null);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [tableData, setTableData] = useState([]);
 
   const openOffcanvas = (user) => {
     setShowOffcanvas(true);
@@ -38,26 +50,64 @@ function Employee() {
     setCurrentUserId(id);
   };
 
-  const handleConfirmDelete = (id) => {
-    dispatch(deleteUser({ id: id }));
-    show && setShow(false);
+  const handleConfirmDelete = async (id) => {
+    try {
+      await dispatch(deleteEmployee(id));
+      await dispatch(getEmployees());
+      show && setShow(false);
+    } catch (err) {
+      console.log(err);
+    }
   };
-  console.log("userOfId", users);
+
+  const token = localStorage.getItem("accessToken");
+
+  useEffect(() => {
+    if (!token) {
+      return navigate("/login");
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   let tempUsers = [];
+  //   if (!isEditMode) {
+  //     tempUsers = [...userList.users];
+  //   } else {
+  //     tempUsers = [...userList.users];
+  //   }
+  //   setTableData(tempUsers);
+
+  //   totalUsersInTable > 0
+  //     ? setTotalUsers(totalUsersInTable)
+  //     : setTotalUsers(tempUsers.length);
+  // }, [userList.users]);
+
+  useEffect(() => {
+    console.log("total employee", totalUsersInTable);
+    totalUsersInTable > 0
+      ? setTotalUsers(totalUsersInTable)
+      : setTotalUsers(userList.users.length);
+  }, [userList.users]);
 
   return (
     <div className="container">
-      <div className="employee-header text-center display-6 mb-4">
-        Employees
-      </div>
-      <div className="text-end mb-4">
-        <Button
-          onClick={() => navigate("/AddEmployee")}
-          id="navigate"
-          variant="primary"
-        >
-          + Add Employee
-        </Button>
-      </div>
+      {isEditMode && (
+        <>
+          <div className="employee-header text-center display-6 mb-4">
+            Employees
+          </div>
+
+          <div className="text-end mb-4">
+            <Button
+              onClick={() => navigate("/AddEmployee")}
+              id="navigate"
+              variant="primary"
+            >
+              + Add Employee
+            </Button>
+          </div>
+        </>
+      )}
       <table className="table table-bordered table-striped">
         <thead className="thead-dark">
           <tr className="text-center">
@@ -68,49 +118,71 @@ function Employee() {
             <th>Phoneno</th>
             <th>Designation</th>
             {/* <th>Current Team</th> */}
-            <th>Action</th>
+            {isEditMode && <th>Action</th>}
           </tr>
         </thead>
         <tbody>
-          {users.map((user, index) => (
-            <tr key={index} className="text-center">
-              <td>{index + 1} </td>
-              {/* <td>{user.id}</td> */}
-              <td>{user.firstname + " " + user.lastName}</td>
-              <td>{user.email}</td>
-              <td>{user.phoneNo}</td>
-              <td>{user.jobPosition}</td>
-              {/* <td>{user.team}</td> */}
-              <td>
-                <Button
-                  variant="info"
-                  size="sm"
-                  className="mr-2"
-                  // onClick={() => handleShowViewModal(user)}
-                  onClick={() => openOffcanvas(user)}
-                >
-                  <FaEye />
-                </Button>
+          {userList.users.map((user, index) => (
+            <>
+              {index < totalUsers && (
+                <tr key={index} className="text-center">
+                  <td>{index + 1} </td>
+                  {/* <td>{user.id}</td> */}
+                  <td>{user.firstname + " " + user.lastName}</td>
+                  <td>{user.email}</td>
+                  <td>{user.phoneNo}</td>
+                  <td>{user.jobPosition}</td>
+                  {isEditMode && (
+                    <td>
+                      <Button
+                        variant="info"
+                        size="sm"
+                        style={{
+                          backgroundColor: "rgb(225 243 225)",
+                          borderColor: "#34c134",
+                        }}
+                        // onClick={() => handleShowViewModal(user)}
+                        onClick={() => openOffcanvas(user)}
+                      >
+                        <FaEye style={{ color: "#34c134" }} />
+                      </Button>
 
-                <Button
-                  variant="warning"
-                  size="sm"
-                  className="mr-2"
-                  onClick={() => navigate(`/edit/${user.id}`)}
-                  id="navigate"
-                >
-                  <FaEdit />
-                </Button>
+                      <Button
+                        variant="warning"
+                        size="sm"
+                        className="ms-2"
+                        style={{
+                          backgroundColor: "#e0e6ef",
+                          borderColor: " #34acdd",
+                        }}
+                        onClick={() => navigate(`/edit/${user.id}`)}
+                        id="navigate"
+                      >
+                        <FaEdit
+                          style={{ color: "#34acdd" }}
+                          className="faedit"
+                        />
+                      </Button>
 
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleShow(Number(user.id))}
-                >
-                  <FaTrash />
-                </Button>
-              </td>
-            </tr>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        style={{
+                          backgroundColor: "#f5e9e9",
+                          borderColor: "red",
+                        }}
+                        className="ms-2"
+                        onClick={() => {
+                          handleShow(user.id);
+                        }}
+                      >
+                        <FaTrash style={{ color: "red" }} className="Fatrash" />
+                      </Button>
+                    </td>
+                  )}
+                </tr>
+              )}
+            </>
           ))}
         </tbody>
         <Modal
@@ -130,7 +202,9 @@ function Employee() {
             </Button>
             <Button
               variant="danger"
-              onClick={() => handleConfirmDelete(currentUserId)}
+              onClick={() => {
+                handleConfirmDelete(currentUserId);
+              }}
             >
               Delete
             </Button>

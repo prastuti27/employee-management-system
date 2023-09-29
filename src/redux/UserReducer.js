@@ -1,60 +1,145 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { userList } from "../Data";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../firebase";
+import { getAuth, deleteUser } from "firebase/auth";
+
+export const getEmployees = createAsyncThunk("users/getEmployees", async () => {
+  try {
+    const usersCollectionRef = collection(db, "users");
+    const response = await getDocs(usersCollectionRef);
+    const userList = [];
+    response.forEach((doc) => {
+      const users = doc.data();
+      userList.push(users);
+
+      console.log(users.createdAt);
+    });
+    return userList;
+  } catch (err) {
+    return err.message;
+  }
+});
+
+export const deleteEmployee = createAsyncThunk(
+  "users/deleteEmployee",
+  async (id) => {
+    const auth = getAuth();
+    console.log("currentUser", auth.currentUser);
+    let selectedUesrUID;
+    const usersCollectionRef = collection(db, "users");
+    const response = await getDocs(usersCollectionRef);
+
+    response.forEach((doc) => {
+      const user = doc.data();
+
+      if (user.id === id) {
+        selectedUesrUID = doc.id;
+      }
+    });
+
+    deleteDoc(doc(db, "users", selectedUesrUID))
+      .then(() => {})
+      .catch((error) => {
+        console.error("Error deleting employee:", error);
+      });
+  }
+);
+
+export const editEmployee = createAsyncThunk(
+  "users/editEmployee",
+  async (values, thunkAPI) => {
+    try {
+      console.log("ASHDKASHDKUASHDKAUHSDKUASHD", values);
+      const usersCollectionRef = collection(db, "users");
+      const response = await getDocs(usersCollectionRef);
+      const updatedUserData = values.payload;
+
+      let selectedUserUID;
+
+      response.forEach((doc) => {
+        const user = doc.data();
+        console.log("doctor", doc.data());
+
+        if (user.id === values.id) {
+          selectedUserUID = doc.id;
+        }
+      });
+
+      if (selectedUserUID) {
+        console.log("editemp", doc(db, "users", selectedUserUID));
+        await updateDoc(doc(db, "users", selectedUserUID), updatedUserData);
+      } else {
+        throw new Error("User not found");
+      }
+
+      return updatedUserData;
+    } catch (error) {
+      console.error("Error editing user:", error);
+    }
+  }
+);
+
+const initialState = {
+  users: [],
+  status: "idle",
+};
 const userSlice = createSlice({
   name: "users",
-  initialState: userList,
+  initialState,
   reducers: {
-    addUser: (state, action) => {
-      console.log("actionnn=>", action);
-      state.push(action.payload);
-      // return [...state, action.payload];
-    },
-    deleteUser: (state, action) => {
-      const { id } = action.payload;
-      const userIndex = state.findIndex((user) => user.id === id);
-
-      if (userIndex !== -1) {
-        state.splice(userIndex, 1);
-      }
-    },
-
+    // addUser: (state, action) => {
+    //   state.users.push(action.payload); // Correct way to update the state
+    // },
     updateUser: (state, action) => {
-      const {
-        id,
-        firstname,
-        lastName,
-        email,
-        phoneNo,
-        address,
-        birthDate,
-        jobPosition,
-        team,
-        selectedFile,
-        gender,
-      } = action.payload;
-
-      const userIndex = state.findIndex(
-        (user) => Number(user.id) === Number(id)
+      const updatedUser = action.payload;
+      const userIndex = state.users.findIndex(
+        (user) => user.id === updatedUser.id
       );
 
       if (userIndex !== -1) {
-        state.splice(userIndex, 1, {
-          id: parseInt(id),
-          firstname,
-          lastName,
-          email,
-          phoneNo,
-          address,
-          birthDate,
-          jobPosition,
-          team,
-          selectedFile,
-          gender,
-        });
+        state.users[userIndex] = updatedUser;
       }
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(getEmployees.fulfilled, (state, action) => {
+      state.status = "fulfilled";
+      console.log("action payload", action.payload);
+      const list = action.payload;
+      const timeStamp = list.map((el) => el.createdAt);
+      console.log("asdasdadwe", timeStamp);
+      const sort = list
+        .slice()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      console.log("sdslijasdlij;asdjiaskjdljklasdjklas;djkl;sad", sort);
+      state.users = sort;
+    });
+    builder.addCase(deleteEmployee.fulfilled, (state, action) => {
+      state.status = "fulfilled";
+    });
+    builder.addCase(deleteEmployee.rejected, (state, action) => {
+      state.status = "rejected";
+      state.error = action.error.message;
+    });
+
+    builder.addCase(editEmployee.fulfilled, (state, action) => {
+      state.status = "fulfilled";
+      console.log("User updated");
+    });
+
+    builder.addCase(editEmployee.rejected, (state, action) => {
+      state.status = "rejected";
+      state.error = action.error.message;
+    });
+  },
 });
-export const { addUser, deleteUser, updateUser } = userSlice.actions;
+
+export const { addUser, updateUser } = userSlice.actions;
 export default userSlice.reducer;

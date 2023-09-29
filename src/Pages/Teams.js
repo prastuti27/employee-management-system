@@ -7,21 +7,38 @@ import { useDispatch } from "react-redux";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-import { deleteTeam } from "../redux/TeamReducer";
+import { deleteSelectedTeam, getTeams } from "../redux/TeamReducer";
 import DeleteButton from "../Components/DeleteButton";
 
 function Teams() {
-  const teams = useSelector((state) => state.teams);
-  console.log(" from team", teams);
-
-  const handleDeleteTeam = (id) => {
-    dispatch(deleteTeam({ id }));
-  };
-
   const dispatch = useDispatch();
 
-  console.log("teamemeber", teams);
+  useEffect(() => {
+    dispatch(getTeams());
+  }, [dispatch]);
+
+  const teamsList = useSelector((state) => state.teams.teams);
+
+  console.log("teams", teamsList);
+
+  const handleDeleteTeam = async (id) => {
+    try {
+      await dispatch(deleteSelectedTeam(id));
+      await dispatch(getTeams());
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // console.log("teamemeber", teams[0].teamMembers);
   const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
+
+  useEffect(() => {
+    if (!token) {
+      return navigate("/login");
+    }
+  }, []);
 
   return (
     <div className="container">
@@ -51,8 +68,8 @@ function Teams() {
           </tr>
         </thead>
         <tbody>
-          {teams &&
-            teams.map((team, index) => (
+          {teamsList &&
+            teamsList.map((team, index) => (
               <tr key={index} className="text-center">
                 <td>{index + 1}</td>
 
@@ -65,18 +82,19 @@ function Teams() {
                       className="table-text-right tooltip-enable-mandatory"
                       data-toggle="tooltip"
                       data-container="#tableRoceMovement"
-                      data-original-title={"${team.teamName}"}
+                      data-original-title={team.teamName}
                       title={team.teamMembers}
                       data-bs-placement="top"
                       data-html="true"
                       onmouseenter="tooltipEnterEvent($(this))"
                       onmouseleave="tooltipLeaveEvent($(this))"
                     >
+                      {team?.teamMembers.map((member, memberIndex) => (
+                        <div key={memberIndex}>{member?.memName}</div>
+                      ))}
                       <a className="viewteam-members"> ... view more</a>
                     </div>
                   )}
-
-                  {/* <td></td> */}
                 </td>
 
                 <td>{team.teamProject}</td>
@@ -87,11 +105,14 @@ function Teams() {
                   <Button
                     variant="warning"
                     size="sm"
-                    className="mr-2"
+                    style={{
+                      backgroundColor: "#e0e6ef",
+                      borderColor: " #34acdd",
+                    }}
                     onClick={() => navigate(`/edit-team/${team.id}`)}
                     id="navigate"
                   >
-                    <FaEdit />
+                    <FaEdit style={{ color: "#34acdd" }} />
                   </Button>
                   <DeleteButton onDelete={() => handleDeleteTeam(team.id)} />
                 </td>

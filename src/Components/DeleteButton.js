@@ -15,8 +15,14 @@ const DeleteButton = ({ onDelete }) => {
 
   return (
     <>
-      <Button variant="danger" size="sm" onClick={handleShow}>
-        <FaTrash />
+      <Button
+        variant="danger"
+        size="sm"
+        style={{ backgroundColor: "#f5e9e9", borderColor: "red" }}
+        className="ms-2"
+        onClick={handleShow}
+      >
+        <FaTrash style={{ color: "red" }} />
       </Button>
 
       <Modal

@@ -1,8 +1,12 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { addTeam, updateTeam } from "../redux/TeamReducer";
+import { useNavigate, useParams } from "react-router-dom";
+import { addTeam, editTeam, getTeams } from "../redux/TeamReducer";
+import { getEmployees } from "../redux/UserReducer";
 import Validation from "./Validation";
+import { db } from "../firebase";
+
+import { collection, getDocs, addDoc, doc } from "firebase/firestore";
 import {
   FormControl,
   InputLabel,
@@ -14,7 +18,10 @@ import {
   FormControlLabel,
 } from "@mui/material";
 
+const usersCollectionRef = collection(db, "teams");
+
 const TeamForm = ({ editMode, teamData }) => {
+  console.log("teamData", teamData);
   const [values, setValues] = useState({
     teamName: editMode ? teamData.teamName : "",
     teamLeader: editMode ? teamData.teamLeader : "",
@@ -24,7 +31,19 @@ const TeamForm = ({ editMode, teamData }) => {
     activityStatus: editMode ? teamData.activityStatus : "",
   });
   const teams = useSelector((state) => state.teams);
-  const users = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getTeams());
+  }, [dispatch]);
+  useEffect(() => {
+    dispatch(getEmployees());
+  }, []);
+
+  const users = useSelector((state) => state.users.users);
+  console.log(users);
+
+  console.log("sdf;skdf;osd;foksdf;oksd;ofks;dof", values);
+
   const [showPresentTeamMembers, setShowPresentTeamMembers] = useState(users);
   const [checked, setChecked] = useState(false);
 
@@ -32,9 +51,9 @@ const TeamForm = ({ editMode, teamData }) => {
     editMode ? teamData.teamMembers : []
   );
   const [errors, setErrors] = useState({});
-
+  const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   const [successAlert, setSuccessAlert] = useState(false);
   const [failureAlert, setFailureAlert] = useState(false);
 
@@ -61,21 +80,28 @@ const TeamForm = ({ editMode, teamData }) => {
     [setTotalTeamMembers]
   );
 
-  const handleValidation = (event) => {
+  const handleValidation = async (event) => {
     event.preventDefault();
     const validationErrors = Validation(values, "team");
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
       if (editMode) {
-        dispatch(updateTeam({ id: teamData.id, ...values }));
+        console.log("editing team");
+        console.log("valuesssssssssssssssssssssssss", values);
+        dispatch(editTeam({ id: teamData.id, values }));
       } else {
         console.log("values", values);
-        const id = teams.length + 1;
-        const updatedAddTeam = { id, ...values };
-        console.log("updatedTeam", updatedAddTeam);
 
-        dispatch(addTeam(updatedAddTeam));
+        const id = teams.teams.length + 1;
+        console.log("iddddd", id);
+        const updatedAddTeam = { id, ...values };
+        console.log("updateasdfjaskld;fjlka;sdjfoasd", updatedAddTeam);
+        const test = await addDoc(usersCollectionRef, updatedAddTeam);
+        console.log("add.test", test);
+        // Add user to database
+
+        //  dispatch(addTeam(updatedAddTeam));
       }
       setSuccessAlert(true);
       setTimeout(() => {
@@ -103,6 +129,8 @@ const TeamForm = ({ editMode, teamData }) => {
         dateAssigned: teamData.dateAssigned,
         activityStatus: teamData.activityStatus,
       });
+      console.log("sdf;skdf;osd;foksdf;oksd;ofks;dof", values);
+      // dispatch(editTeam({ id, payload }));
     }
   }, [editMode, teamData]);
 

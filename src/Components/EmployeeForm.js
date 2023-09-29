@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { FaUserCircle, FaUpload } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser, updateUser } from "../redux/UserReducer";
-import { useNavigate } from "react-router-dom";
+import { addUser, getEmployees, editEmployee } from "../redux/UserReducer";
+import { useNavigate, useParams } from "react-router-dom";
 import Validation from "./Validation";
+import { db, auth } from "../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { collection, getDocs, addDoc, doc } from "firebase/firestore";
+
+const usersCollectionRef = collection(db, "users");
 
 const EmployeeForm = ({ editMode, initialValues }) => {
   const [values, setValues] = useState({
@@ -16,14 +21,26 @@ const EmployeeForm = ({ editMode, initialValues }) => {
     jobPosition: "",
     team: "",
     gender: "",
+    password: "",
+    confirmPassword: "",
+    role: "",
     ...initialValues,
   });
 
   const [errors, setErrors] = useState({});
   const users = useSelector((state) => state.users);
-  const [dpImage, setDPImage] = useState("");
-  const navigate = useNavigate();
+
   const dispatch = useDispatch();
+
+  const userId = useParams();
+  console.log("params", userId.id);
+
+  useEffect(() => {
+    dispatch(getEmployees());
+  }, [dispatch]);
+  const [dpImage, setDPImage] = useState(null);
+  const navigate = useNavigate();
+
   const [successAlert, setSuccessAlert] = useState(false);
   const [failureAlert, setFailureAlert] = useState(false);
 
@@ -36,22 +53,73 @@ const EmployeeForm = ({ editMode, initialValues }) => {
     }
   }, [editMode, initialValues]);
 
-  const handleInput = (event) => {
-    const { name, value } = event.target;
-    setValues((prevValues) => ({ ...prevValues, [name]: value }));
+  const handleInput = (e) => {
+    const { name, value } = e.target;
+    setValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
   };
 
-  const handleValidation = (event) => {
+  const handleValidation = async (event) => {
     event.preventDefault();
-    const validationErrors = Validation(values, "user");
+    const isEditMode = editMode;
+    console.log("edit Mode", isEditMode);
+    const validationErrors = await Validation(values, "user", isEditMode);
     console.log("return error", validationErrors);
     setErrors(validationErrors);
-    console.log("Validating FORM", validationErrors, event, editMode);
+    console.log("Validating FORM", validationErrors, event, isEditMode);
+    const payload = {
+      firstname: values.firstname,
+      lastName: values.lastName,
+      email: values.email,
+      phoneNo: values.phoneNo,
+      address: values.address,
+      birthDate: values.birthDate,
+      jobPosition: values.jobPosition,
+      team: values.team,
+      gender: values.gender,
+      updatedAt: String(new Date(Date)),
+    };
+    console.log("asdjialsdjlasdiasd", payload);
     if (Object.keys(validationErrors).length === 0) {
       const id = users.length + 1;
-      const action = editMode ? updateUser : addUser;
-      dispatch(action({ id, ...values, selectedFile: dpImage }));
+      const action = editMode ? editEmployee : addUser;
 
+      if (!editMode) {
+        createUserWithEmailAndPassword(auth, values.email, values.password)
+          .then(async (res) => {
+            console.log(new Date(Date.now()));
+            const authUser = res.user;
+            const createPayload = {
+              id: authUser.uid,
+              firstname: values.firstname,
+              lastName: values.lastName,
+              email: values.email,
+              phoneNo: values.phoneNo,
+              address: values.address,
+              birthDate: values.birthDate,
+              jobPosition: values.jobPosition,
+              team: values.team,
+              gender: values.gender,
+              role: "user",
+              createdAt: String(new Date(Date.now())),
+              updatedAt: null,
+            };
+            // const docRef = await addDoc(usersCollectionRef, payload);
+            await addDoc(usersCollectionRef, createPayload);
+            // console.log("doc", docRef);
+          })
+          .catch((err) => {
+            console.log("Error", err);
+          });
+        // dispatch(action({ id, ...values, selectedFile: dpImage }));
+      } else {
+        console.log("Updating user");
+        console.log("asjdliasdjalidsjasdliajsdliajdsilajdsliasd", userId.id);
+        const id = userId.id;
+        dispatch(editEmployee({ id, payload }));
+      }
       setSuccessAlert(true);
       setTimeout(() => {
         setSuccessAlert(false);
@@ -66,7 +134,13 @@ const EmployeeForm = ({ editMode, initialValues }) => {
   };
 
   const handleValidationOnBlur = (name, value) => {
-    const validationErrors = Validation({ ...values, [name]: value }, "user");
+    const isEditMode = editMode;
+    console.log("edit Mode", isEditMode);
+    const validationErrors = Validation(
+      { ...values, [name]: value },
+      "user",
+      isEditMode
+    );
     setErrors({ ...errors, [name]: validationErrors[name] });
   };
 
@@ -329,6 +403,71 @@ const EmployeeForm = ({ editMode, initialValues }) => {
                   </span>
                 </small>
               )}
+            </div>
+          </div>
+        </div>
+        <div className="form-group mt-4">
+          <div className="row justify-content-start">
+            <div className="col-md-3">
+              <h3 className=" text-center mt-4">Password</h3>
+            </div>
+            <div className="col-md-3">
+              <div className="form-group mt-4">
+                <label htmlFor="password">
+                  New Password <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="password"
+                  onBlur={(event) =>
+                    handleValidationOnBlur(
+                      event.target.name,
+                      event.target.value
+                    )
+                  }
+                  className="form-control"
+                  id="password"
+                  name="password"
+                  placeholder="Enter Password"
+                  onChange={handleInput}
+                  value={values.password}
+                />
+                {errors.password && (
+                  <small>
+                    <span style={{ color: "red", fontSize: "0.9em" }}>
+                      {errors.password}
+                    </span>
+                  </small>
+                )}
+              </div>
+            </div>
+            <div className="col-md-3 ">
+              <div className="form-group mt-4">
+                <label htmlFor="confirmPassword">
+                  Confirm Password <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="password"
+                  onBlur={(event) =>
+                    handleValidationOnBlur(
+                      event.target.name,
+                      event.target.value
+                    )
+                  }
+                  className="form-control"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Re-enter Password"
+                  onChange={handleInput}
+                  value={values.confirmPassword}
+                />
+                {errors.confirmPassword && (
+                  <small>
+                    <span style={{ color: "red", fontSize: "0.9em" }}>
+                      {errors.confirmPassword}
+                    </span>
+                  </small>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -1,13 +1,14 @@
-export default function Validation(values, formType) {
+export default function Validation(values, formType, isEditMode) {
   console.log("values::: from Form", formType, values);
+  console.log("isEditMode?", isEditMode);
   if (formType === "team") {
     return teamValidaion(values);
   } else if (formType === "user") {
-    return userValidation(values);
+    return userValidation(values, isEditMode);
   }
 }
 
-function userValidation(values) {
+function userValidation(values, editMode) {
   const errors = {};
   const email_pattern =
     /^\w+([\.-]?\w+)*@(?:(?!gmail\.com)[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*|gmail\.com)$/;
@@ -67,6 +68,19 @@ function userValidation(values) {
     errors.email = <small>Email did'nt match!</small>;
   }
 
+  if (!editMode) {
+    if (values.password === "") {
+      errors.password = "Password is Required!";
+    } else if (values.password.length < 6) {
+      errors.password = "Password must be at least 6 characters long!";
+    }
+
+    if (values.confirmPassword === "") {
+      errors.confirmPassword = "Confirm Password is Required!";
+    } else if (values.password !== values.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match!";
+    }
+  }
   return errors;
 }
 

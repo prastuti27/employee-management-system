@@ -1,20 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TeamForm from "./TeamForm";
-import { updateTeam } from "../redux/TeamReducer";
+import { getTeams } from "../redux/TeamReducer";
+
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const EditTeamPage = ({ teamid }) => {
-  const { id } = useParams();
-  const teams = useSelector((state) => state.teams);
-  console.log("teamsstate", teams);
-  const teamData = teams.find((team) => team.id === Number(id));
-  console.log("teamData", teamData);
-  const navigate = useNavigate();
-  const [values, setValues] = useState(teamData);
-
+const EditTeam = () => {
   const dispatch = useDispatch();
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getTeams());
+  }, []);
+  const teams = useSelector((state) => state.teams.teams);
+  const teamData = teams.find((team) => team.id === Number(id));
+
+  const [values, setValues] = useState(teamData);
+  console.log("teamDataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", teamData);
+
+  console.log("teamsstate", teams);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,21 +29,21 @@ const EditTeamPage = ({ teamid }) => {
       [name]: value,
     }));
   };
-  const handleUpdate = (event) => {
-    event.preventDefault();
-    dispatch(
-      updateTeam({
-        id,
-        teamName: values.teamName,
-        teamLeader: values.teamLeader,
-        teamProject: values.teamProject,
-        teamMembers: values.teamMembers,
-        dateAssigned: values.Assigned,
-        activityStatus: values.activityStatus,
-      })
-    );
-    navigate("/employee");
-  };
+  // const handleUpdate = (event) => {
+  //   event.preventDefault();
+  //   dispatch(
+  //     updateTeam({
+  //       id,
+  //       teamName: values.teamName,
+  //       teamLeader: values.teamLeader,
+  //       teamProject: values.teamProject,
+  //       teamMembers: values.teamMembers,
+  //       dateAssigned: values.Assigned,
+  //       activityStatus: values.activityStatus,
+  //     })
+  //   );
+  //   navigate("/employee");
+  // };
 
   return (
     <div>
@@ -46,4 +52,4 @@ const EditTeamPage = ({ teamid }) => {
   );
 };
 
-export default EditTeamPage;
+export default EditTeam;
